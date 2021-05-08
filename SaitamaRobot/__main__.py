@@ -96,10 +96,6 @@ NEZUKOIMGSTART = "https://telegra.ph/file/d059bad820d5f4bd6cddd.mp4"
 STICKERS = ("CAACAgUAAxkBAAPmYID04LDE8E87OOMdmsWf15S8FPYAApYBAALFNFhW2en88ynVKfUfBA"
 )
             
-DONATE_STRING = """Heya, glad to hear you want to donate!
- You can support the project via [Paypal](ko-fi.com/sawada) or by contacting @Sawada \
- Supporting isnt always financial! \
- Those who cannot provide monetary support are welcome to help us develop the bot at @OnePunchDev."""
 
 IMPORTED = {}
 MIGRATEABLE = []
