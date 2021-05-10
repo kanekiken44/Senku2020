@@ -1,7 +1,7 @@
 import html
 import random
 import time
-import requests
+import asyncio
 
 import SaitamaRobot.modules.fun_strings as fun_strings
 from SaitamaRobot import dispatcher
@@ -12,7 +12,7 @@ from telegram import ChatPermissions, ParseMode, Update
 from telegram.error import BadRequest
 from telegram.ext import CallbackContext, run_async
 
-GIF_ID = "CgACAgQAAx0CSVUvGgAC7KpfWxMrgGyQs-GUUJgt-TSO8cOIDgACaAgAAlZD0VHT3Zynpr5nGxsE"
+GIF_ID = 'CgACAgQAAx0CSVUvGgAC7KpfWxMrgGyQs-GUUJgt-TSO8cOIDgACaAgAAlZD0VHT3Zynpr5nGxsE'
 
 
 @run_async
@@ -23,57 +23,27 @@ def runs(update: Update, context: CallbackContext):
 @run_async
 def sanitize(update: Update, context: CallbackContext):
     message = update.effective_message
-    name = (
-        message.reply_to_message.from_user.first_name
-        if message.reply_to_message
-        else message.from_user.first_name
-    )
-    reply_animation = (
-        message.reply_to_message.reply_animation
-        if message.reply_to_message
-        else message.reply_animation
-    )
-    reply_animation(GIF_ID, caption=f"*Sanitizes {name}*")
+    name = message.reply_to_message.from_user.first_name if message.reply_to_message else message.from_user.first_name
+    reply_animation = message.reply_to_message.reply_animation if message.reply_to_message else message.reply_animation
+    reply_animation(GIF_ID, caption=f'*Sanitizes {name}*')
 
 
 @run_async
 def sanitize(update: Update, context: CallbackContext):
     message = update.effective_message
-    name = (
-        message.reply_to_message.from_user.first_name
-        if message.reply_to_message
-        else message.from_user.first_name
-    )
-    reply_animation = (
-        message.reply_to_message.reply_animation
-        if message.reply_to_message
-        else message.reply_animation
-    )
-    reply_animation(random.choice(fun_strings.GIFS), caption=f"*Sanitizes {name}*")
-   
-#plugin by t.me/RCage
+    name = message.reply_to_message.from_user.first_name if message.reply_to_message else message.from_user.first_name
+    reply_animation = message.reply_to_message.reply_animation if message.reply_to_message else message.reply_animation
+    reply_animation(
+        random.choice(fun_strings.GIFS), caption=f'*Sanitizes {name}*')
+
+
 @run_async
-def meme(update: Update, context: CallbackContext):
-    msg = update.effective_message
-    meme = requests.get("https://meme-api.herokuapp.com/gimme/Animemes/").json()
-    image = meme.get("url")
-    caption = meme.get("title")
-    if not image:
-        msg.reply_text("No URL was received from the API!")
-        return
-    msg.reply_photo(
-                photo=image, caption=caption)
-@run_async
-def slap(update: Update, context: CallbackContext):
+def billy(update: Update, context: CallbackContext):
     bot, args = context.bot, context.args
     message = update.effective_message
     chat = update.effective_chat
 
-    reply_text = (
-        message.reply_to_message.reply_text
-        if message.reply_to_message
-        else message.reply_text
-    )
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
 
     curr_user = html.escape(message.from_user.first_name)
     user_id = extract_user(message, args)
@@ -92,8 +62,59 @@ def slap(update: Update, context: CallbackContext):
                     chat.id,
                     message.from_user.id,
                     until_date=mutetime,
-                    permissions=ChatPermissions(can_send_messages=False),
-                )
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.BILLY_TEMPLATES)
+
+    if update.effective_user.id == 163494588:
+        temp = "{user1} is already the king"
+
+    reply = temp.format(
+        user1=user1, user2=user2,)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)
+    
+    
+@run_async
+def slap(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
+
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.SLAP_SAITAMA_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
             reply_text(temp[0])
         else:
             reply_text(temp)
@@ -117,11 +138,276 @@ def slap(update: Update, context: CallbackContext):
     if update.effective_user.id == 1096215023:
         temp = "@NeoTheKitty scratches {user2}"
 
-    reply = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw)
+    reply = temp.format(
+        user1=user1, user2=user2, item=item, hits=hit, throws=throw)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)
+    
+@run_async
+def earth(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
+
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.GAME_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.EARTH_GAME_TEMPLATES)
+    hp = random.choice(fun_strings.HP)
+    earth = random.choice(fun_strings.EARTH)
+
+    if update.effective_user.id == 1096215023:
+        temp = "@NeoTheKitty scratches {user2}"
+
+    reply = temp.format(
+        user1=user1, user2=user2, hp=hp, earth=earth)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)
+    
+@run_async
+def heal(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
+
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.GAME_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.HEAL_TEMPLATES)
+    healhp = random.choice(fun_strings.HEALHP)
+    heal = random.choice(fun_strings.HEAL)
+
+    if update.effective_user.id == 1096215023:
+        temp = "@NeoTheKitty scratches {user2}"
+
+    reply = temp.format(
+        user1=user1, user2=user2, healhp=healhp, heal=heal)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)
+    
+@run_async
+def fire(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
+
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.GAME_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.FIRE_GAME_TEMPLATES)
+    hp = random.choice(fun_strings.HP)
+    fire = random.choice(fun_strings.FIRE)
+
+    if update.effective_user.id == 1096215023:
+        temp = "@NeoTheKitty scratches {user2}"
+
+    reply = temp.format(
+        user1=user1, user2=user2, hp=hp, fire=fire)
 
     reply_text(reply, parse_mode=ParseMode.HTML)
 
+@run_async
+def water(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
 
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.GAME_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.WATER_GAME_TEMPLATES)
+    hp = random.choice(fun_strings.HP)
+    water = random.choice(fun_strings.WATER)
+
+    if update.effective_user.id == 1096215023:
+        temp = "@NeoTheKitty scratches {user2}"
+
+    reply = temp.format(
+        user1=user1, user2=user2, hp=hp, water=water)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)
+
+@run_async
+def meow(update: Update, context: CallbackContext):
+    bot, args = context.bot, context.args
+    message = update.effective_message
+    chat = update.effective_chat
+
+    reply_text = message.reply_to_message.reply_text if message.reply_to_message else message.reply_text
+
+    curr_user = html.escape(message.from_user.first_name)
+    user_id = extract_user(message, args)
+
+    if user_id == bot.id:
+        temp = random.choice(fun_strings.GAME_TEMPLATES)
+
+        if isinstance(temp, list):
+            if temp[2] == "tmute":
+                if is_user_admin(chat, message.from_user.id):
+                    reply_text(temp[1])
+                    return
+
+                mutetime = int(time.time() + 60)
+                bot.restrict_chat_member(
+                    chat.id,
+                    message.from_user.id,
+                    until_date=mutetime,
+                    permissions=ChatPermissions(can_send_messages=False))
+            reply_text(temp[0])
+        else:
+            reply_text(temp)
+        return
+
+    if user_id:
+
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        user2 = html.escape(slapped_user.first_name)
+
+    else:
+        user1 = bot.first_name
+        user2 = curr_user
+
+    temp = random.choice(fun_strings.MEOW_TEMPLATES)
+    lewd = random.choice(fun_strings.LEWD)
+    meter = random.choice(fun_strings.METER)
+
+    if update.effective_user.id == 1096215023:
+        temp = "@NeoTheKitty scratches {user2}"
+
+    reply = temp.format(
+        user1=user1, user2=user2, lewd=lewd, meter=meter)
+
+    reply_text(reply, parse_mode=ParseMode.HTML)    
+    
 @run_async
 def pat(update: Update, context: CallbackContext):
     bot = context.bot
@@ -173,9 +459,9 @@ def shout(update: Update, context: CallbackContext):
     args = context.args
     text = " ".join(args)
     result = []
-    result.append(" ".join(list(text)))
+    result.append(' '.join(list(text)))
     for pos, symbol in enumerate(text[1:]):
-        result.append(symbol + " " + "  " * pos + symbol)
+        result.append(symbol + ' ' + '  ' * pos + symbol)
     result = list("\n".join(result))
     result[0] = text[0]
     result = "".join(result)
@@ -191,18 +477,14 @@ def toss(update: Update, context: CallbackContext):
 @run_async
 def shrug(update: Update, context: CallbackContext):
     msg = update.effective_message
-    reply_text = (
-        msg.reply_to_message.reply_text if msg.reply_to_message else msg.reply_text
-    )
+    reply_text = msg.reply_to_message.reply_text if msg.reply_to_message else msg.reply_text
     reply_text(r"¯\_(ツ)_/¯")
 
 
 @run_async
 def bluetext(update: Update, context: CallbackContext):
     msg = update.effective_message
-    reply_text = (
-        msg.reply_to_message.reply_text if msg.reply_to_message else msg.reply_text
-    )
+    reply_text = msg.reply_to_message.reply_text if msg.reply_to_message else msg.reply_text
     reply_text(
         "/BLUE /TEXT\n/MUST /CLICK\n/I /AM /A /STUPID /ANIMAL /THAT /IS /ATTRACTED /TO /COLORS"
     )
@@ -223,89 +505,29 @@ def rlg(update: Update, context: CallbackContext):
 
 @run_async
 def decide(update: Update, context: CallbackContext):
-    reply_text = (
-        update.effective_message.reply_to_message.reply_text
-        if update.effective_message.reply_to_message
-        else update.effective_message.reply_text
-    )
+    reply_text = update.effective_message.reply_to_message.reply_text if update.effective_message.reply_to_message else update.effective_message.reply_text
     reply_text(random.choice(fun_strings.DECIDE))
 
 
 @run_async
 def eightball(update: Update, context: CallbackContext):
-    reply_text = (
-        update.effective_message.reply_to_message.reply_text
-        if update.effective_message.reply_to_message
-        else update.effective_message.reply_text
-    )
+    reply_text = update.effective_message.reply_to_message.reply_text if update.effective_message.reply_to_message else update.effective_message.reply_text
     reply_text(random.choice(fun_strings.EIGHTBALL))
 
 
 @run_async
 def table(update: Update, context: CallbackContext):
-    reply_text = (
-        update.effective_message.reply_to_message.reply_text
-        if update.effective_message.reply_to_message
-        else update.effective_message.reply_text
-    )
+    reply_text = update.effective_message.reply_to_message.reply_text if update.effective_message.reply_to_message else update.effective_message.reply_text
     reply_text(random.choice(fun_strings.TABLE))
 
 
 normiefont = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z",
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 ]
 weebyfont = [
-    "卂",
-    "乃",
-    "匚",
-    "刀",
-    "乇",
-    "下",
-    "厶",
-    "卄",
-    "工",
-    "丁",
-    "长",
-    "乚",
-    "从",
-    "𠘨",
-    "口",
-    "尸",
-    "㔿",
-    "尺",
-    "丂",
-    "丅",
-    "凵",
-    "リ",
-    "山",
-    "乂",
-    "丫",
-    "乙",
+    '卂', '乃', '匚', '刀', '乇', '下', '厶', '卄', '工', '丁', '长', '乚', '从', '𠘨', '口',
+    '尸', '㔿', '尺', '丂', '丅', '凵', 'リ', '山', '乂', '丫', '乙'
 ]
 
 
@@ -319,10 +541,11 @@ def weebify(update: Update, context: CallbackContext):
         string = message.reply_to_message.text.lower().replace(" ", "  ")
 
     if args:
-        string = "  ".join(args).lower()
+        string = '  '.join(args).lower()
 
     if not string:
-        message.reply_text("Usage is `/weebify <text>`", parse_mode=ParseMode.MARKDOWN)
+        message.reply_text(
+            "Usage is `/weebify <text>`", parse_mode=ParseMode.MARKDOWN)
         return
 
     for normiecharacter in string:
@@ -339,6 +562,12 @@ def weebify(update: Update, context: CallbackContext):
 __help__ = """
  • `/runs`*:* reply a random string from an array of replies
  • `/slap`*:* slap a user, or get slapped if not a reply
+ • `/billy`*:*  custom made by Pranav
+ • `/heal`*:*  custom made by Pranav
+ • `/earth`*:*  custom made by Pranav
+ • `/meow`*:*  custom made by Pranav
+ • `/water`*:*  custom made by Pranav
+ • `/fire`*:*   custom made by Pranav
  • `/shrug`*:* get shrug XD
  • `/table`*:* get flip/unflip :v
  • `/decide`*:* Randomly answers yes/no/maybe
@@ -351,13 +580,17 @@ __help__ = """
  • `/sanitize`*:* always use this before /pat or any contact
  • `/pat`*:* pats a user, or get patted
  • `/8ball`*:* predicts using 8ball method 
- • `/meme`*:* sends a random meme form reddit `r/animemes`
 """
 
-MEME_HANDLER = DisableAbleCommandHandler("meme", meme)
 SANITIZE_HANDLER = DisableAbleCommandHandler("sanitize", sanitize)
+EARTH_HANDLER = DisableAbleCommandHandler("earth", earth)
+HEAL_HANDLER = DisableAbleCommandHandler("heal", heal)
+WATER_HANDLER = DisableAbleCommandHandler("water", water)
+MEOW_HANDLER = DisableAbleCommandHandler("meow", meow)
+FIRE_HANDLER = DisableAbleCommandHandler("fire", fire)
 RUNS_HANDLER = DisableAbleCommandHandler("runs", runs)
 SLAP_HANDLER = DisableAbleCommandHandler("slap", slap)
+BILLY_HANDLER = DisableAbleCommandHandler("billy", billy)
 PAT_HANDLER = DisableAbleCommandHandler("pat", pat)
 ROLL_HANDLER = DisableAbleCommandHandler("roll", roll)
 TOSS_HANDLER = DisableAbleCommandHandler("toss", toss)
@@ -370,12 +603,17 @@ TABLE_HANDLER = DisableAbleCommandHandler("table", table)
 SHOUT_HANDLER = DisableAbleCommandHandler("shout", shout)
 WEEBIFY_HANDLER = DisableAbleCommandHandler("weebify", weebify)
 
-dispatcher.add_handler(MEME_HANDLER)
 dispatcher.add_handler(WEEBIFY_HANDLER)
 dispatcher.add_handler(SHOUT_HANDLER)
 dispatcher.add_handler(SANITIZE_HANDLER)
+dispatcher.add_handler(EARTH_HANDLER)
+dispatcher.add_handler(HEAL_HANDLER)
+dispatcher.add_handler(WATER_HANDLER)
+dispatcher.add_handler(MEOW_HANDLER)
+dispatcher.add_handler(FIRE_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
 dispatcher.add_handler(SLAP_HANDLER)
+dispatcher.add_handler(BILLY_HANDLER)
 dispatcher.add_handler(PAT_HANDLER)
 dispatcher.add_handler(ROLL_HANDLER)
 dispatcher.add_handler(TOSS_HANDLER)
@@ -388,36 +626,11 @@ dispatcher.add_handler(TABLE_HANDLER)
 
 __mod_name__ = "Fun"
 __command_list__ = [
-    "runs",
-    "slap",
-    "roll",
-    "toss",
-    "shrug",
-    "bluetext",
-    "rlg",
-    "decide",
-    "table",
-    "pat",
-    "sanitize",
-    "shout",
-    "weebify",
-    "8ball",
-     "meme",
+    "runs", "slap", "billy" , "roll", "fire", "water", "meow", "toss", "shrug", "heal", "earth", "bluetext", "rlg", "decide",
+    "table", "pat", "sanitize", "shout", "weebify", "8ball"
 ]
 __handlers__ = [
-    RUNS_HANDLER,
-    SLAP_HANDLER,
-    PAT_HANDLER,
-    ROLL_HANDLER,
-    TOSS_HANDLER,
-    SHRUG_HANDLER,
-    BLUETEXT_HANDLER,
-    RLG_HANDLER,
-    DECIDE_HANDLER,
-    TABLE_HANDLER,
-    SANITIZE_HANDLER,
-    SHOUT_HANDLER,
-    WEEBIFY_HANDLER,
-    EIGHTBALL_HANDLER,
-    MEME_HANDLER,
+    RUNS_HANDLER, SLAP_HANDLER, BILLY_HANDLER, FIRE_HANDLER, WATER_HANDLER, MEOW_HANDLER, EARTH_HANDLER, HEAL_HANDLER , PAT_HANDLER, ROLL_HANDLER, TOSS_HANDLER,
+    SHRUG_HANDLER, BLUETEXT_HANDLER, RLG_HANDLER, DECIDE_HANDLER, TABLE_HANDLER,
+    SANITIZE_HANDLER, SHOUT_HANDLER, WEEBIFY_HANDLER, EIGHTBALL_HANDLER
 ]
